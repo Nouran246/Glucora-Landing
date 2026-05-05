@@ -1,11 +1,977 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Glucora</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Glucora — AI-Powered Glucose Monitoring</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500;600&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --teal-deep: #2a7a72;
+    --teal-mid: #3d9e95;
+    --teal-light: #6dbfb8;
+    --teal-pale: #a8dbd7;
+    --teal-wash: #e8f5f4;
+    --teal-mist: #f2fafa;
+    --white: #ffffff;
+    --text-dark: #1a2e2d;
+    --text-mid: #3d5c5a;
+    --text-soft: #7a9e9c;
+  }
+
+  *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--white);
+    color: var(--text-dark);
+    overflow-x: hidden;
+  }
+
+  /* NAV */
+  nav {
+    position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 1.2rem 5vw;
+    background: rgba(255,255,255,0.85);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid rgba(109,191,184,0.2);
+  }
+  .nav-logo { display: flex; align-items: center; gap: 0.7rem; }
+  .nav-logo img { height: 36px; }
+  .nav-logo span {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1.6rem; font-weight: 500;
+    color: var(--teal-deep);
+  }
+  .nav-links { display: flex; gap: 2.2rem; list-style: none; }
+  .nav-links a {
+    text-decoration: none; font-size: 0.88rem; font-weight: 400;
+    color: var(--text-mid); letter-spacing: 0.03em;
+    transition: color 0.2s;
+  }
+  .nav-links a:hover { color: var(--teal-deep); }
+  .nav-cta {
+    background: var(--teal-deep); color: white;
+    padding: 0.55rem 1.4rem; border-radius: 50px;
+    font-size: 0.85rem; font-weight: 500;
+    text-decoration: none; transition: background 0.2s, transform 0.2s;
+  }
+  .nav-cta:hover { background: var(--teal-mid); transform: translateY(-1px); }
+
+  /* HERO */
+  .hero {
+    min-height: 100vh;
+    display: grid; grid-template-columns: 1fr 1fr;
+    align-items: center;
+    padding: 6rem 5vw 4rem;
+    position: relative; overflow: hidden;
+  }
+  .hero::before {
+    content: '';
+    position: absolute; top: -200px; right: -200px;
+    width: 700px; height: 700px; border-radius: 50%;
+    background: radial-gradient(circle, rgba(109,191,184,0.18) 0%, transparent 70%);
+    pointer-events: none;
+  }
+  .hero::after {
+    content: '';
+    position: absolute; bottom: -100px; left: 30%;
+    width: 500px; height: 500px; border-radius: 50%;
+    background: radial-gradient(circle, rgba(168,219,215,0.12) 0%, transparent 70%);
+    pointer-events: none;
+  }
+  .hero-text { z-index: 2; }
+  .hero-badge {
+    display: inline-flex; align-items: center; gap: 0.5rem;
+    background: var(--teal-wash); border: 1px solid var(--teal-pale);
+    padding: 0.4rem 1rem; border-radius: 50px;
+    font-size: 0.78rem; font-weight: 500; color: var(--teal-deep);
+    letter-spacing: 0.06em; text-transform: uppercase;
+    margin-bottom: 1.8rem;
+    animation: fadeUp 0.8s ease both;
+  }
+  .hero-badge::before {
+    content: ''; width: 6px; height: 6px; border-radius: 50%;
+    background: var(--teal-mid); animation: pulse 2s infinite;
+  }
+  @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.3} }
+
+  h1 {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: clamp(2.8rem, 5vw, 4.2rem);
+    font-weight: 300; line-height: 1.12;
+    color: var(--text-dark); margin-bottom: 1.5rem;
+    animation: fadeUp 0.8s 0.1s ease both;
+  }
+  h1 em { font-style: normal; color: var(--teal-deep); }
+  .hero-sub {
+    font-size: 1.05rem; font-weight: 300;
+    color: var(--text-mid); line-height: 1.7;
+    max-width: 480px; margin-bottom: 2.5rem;
+    animation: fadeUp 0.8s 0.2s ease both;
+  }
+  .hero-actions {
+    display: flex; gap: 1rem; align-items: center;
+    animation: fadeUp 0.8s 0.3s ease both;
+  }
+  .btn-primary {
+    background: var(--teal-deep); color: white;
+    padding: 0.85rem 2.2rem; border-radius: 50px;
+    font-size: 0.9rem; font-weight: 500;
+    text-decoration: none; letter-spacing: 0.02em;
+    transition: all 0.25s; box-shadow: 0 8px 24px rgba(42,122,114,0.3);
+  }
+  .btn-primary:hover { background: var(--teal-mid); transform: translateY(-2px); box-shadow: 0 12px 32px rgba(42,122,114,0.4); }
+  .btn-ghost {
+    color: var(--teal-deep); font-size: 0.9rem; font-weight: 500;
+    text-decoration: none; display: flex; align-items: center; gap: 0.5rem;
+    transition: gap 0.2s;
+  }
+  .btn-ghost:hover { gap: 0.8rem; }
+  .btn-ghost::after { content: '→'; font-size: 1rem; }
+
+  /* HERO VISUAL */
+  .hero-visual {
+    z-index: 2; display: flex; justify-content: center; align-items: center;
+    animation: fadeUp 0.8s 0.2s ease both;
+  }
+  .device-mockup {
+    position: relative; width: 280px;
+  }
+  .phone-frame {
+    background: var(--text-dark); border-radius: 36px;
+    padding: 10px; box-shadow: 0 40px 80px rgba(26,46,45,0.25);
+  }
+  .phone-screen {
+    background: var(--teal-mist); border-radius: 28px;
+    padding: 20px; min-height: 520px; position: relative; overflow: hidden;
+  }
+  .phone-notch {
+    width: 80px; height: 20px; background: var(--text-dark);
+    border-radius: 0 0 14px 14px; margin: 0 auto 16px;
+  }
+  .glucose-card {
+    background: white; border-radius: 18px; padding: 16px;
+    box-shadow: 0 4px 20px rgba(42,122,114,0.1); margin-bottom: 12px;
+  }
+  .glucose-label { font-size: 0.65rem; color: var(--text-soft); font-weight: 500; text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 4px; }
+  .glucose-value { font-family: 'Cormorant Garamond', serif; font-size: 2.8rem; font-weight: 300; color: var(--teal-deep); line-height: 1; }
+  .glucose-value span { font-size: 0.9rem; color: var(--text-soft); font-family: 'DM Sans', sans-serif; font-weight: 300; }
+  .glucose-trend { display: flex; align-items: center; gap: 4px; margin-top: 4px; font-size: 0.7rem; color: var(--teal-mid); font-weight: 500; }
+  .glucose-trend::before { content: '↗'; }
+
+  .mini-chart {
+    height: 50px; display: flex; align-items: flex-end; gap: 3px; padding: 4px 0;
+  }
+  .bar {
+    flex: 1; background: var(--teal-pale); border-radius: 3px;
+    animation: barGrow 1s ease both;
+  }
+  .bar:nth-child(1){ height: 40%; animation-delay: 0.1s; }
+  .bar:nth-child(2){ height: 65%; animation-delay: 0.15s; }
+  .bar:nth-child(3){ height: 50%; animation-delay: 0.2s; }
+  .bar:nth-child(4){ height: 80%; animation-delay: 0.25s; }
+  .bar:nth-child(5){ height: 70%; animation-delay: 0.3s; }
+  .bar:nth-child(6){ height: 90%; animation-delay: 0.35s; background: var(--teal-mid); }
+  .bar:nth-child(7){ height: 75%; animation-delay: 0.4s; }
+  .bar:nth-child(8){ height: 60%; animation-delay: 0.45s; }
+  @keyframes barGrow { from{transform:scaleY(0);transform-origin:bottom} to{transform:scaleY(1)} }
+
+  .ai-card {
+    background: linear-gradient(135deg, var(--teal-deep), var(--teal-mid));
+    border-radius: 18px; padding: 14px; color: white; margin-bottom: 12px;
+  }
+  .ai-card-title { font-size: 0.65rem; font-weight: 500; text-transform: uppercase; letter-spacing: 0.06em; opacity: 0.8; margin-bottom: 6px; }
+  .ai-card-text { font-size: 0.7rem; line-height: 1.5; opacity: 0.95; }
+
+  .alert-chip {
+    display: inline-flex; align-items: center; gap: 6px;
+    background: #fff8e7; border: 1px solid #f0c94a; border-radius: 50px;
+    padding: 6px 12px; font-size: 0.65rem; color: #8a6a00; font-weight: 500;
+  }
+  .alert-chip::before { content: '⚠'; font-size: 0.75rem; }
+
+  /* floating badges */
+  .float-badge {
+    position: absolute; background: white;
+    border-radius: 14px; padding: 10px 14px;
+    box-shadow: 0 8px 24px rgba(42,122,114,0.18);
+    font-size: 0.72rem; font-weight: 500; color: var(--text-dark);
+    white-space: nowrap;
+  }
+  .float-badge .fb-val { font-size: 1.1rem; color: var(--teal-deep); font-weight: 600; display: block; }
+  .float-badge.left { left: -70px; top: 30%; }
+  .float-badge.right { right: -70px; top: 60%; }
+
+  /* STATS */
+  .stats-bar {
+    background: var(--teal-deep);
+    padding: 2.5rem 5vw;
+    display: flex; justify-content: space-around; align-items: center;
+    flex-wrap: wrap; gap: 1.5rem;
+  }
+  .stat-item { text-align: center; color: white; }
+  .stat-number {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 2.6rem; font-weight: 300; display: block; line-height: 1;
+  }
+  .stat-label { font-size: 0.8rem; font-weight: 300; opacity: 0.8; margin-top: 4px; }
+  .stat-divider { width: 1px; height: 50px; background: rgba(255,255,255,0.2); }
+
+  /* SECTION */
+  section { padding: 6rem 5vw; }
+  .section-tag {
+    font-size: 0.75rem; font-weight: 500; text-transform: uppercase; letter-spacing: 0.1em;
+    color: var(--teal-mid); margin-bottom: 1rem;
+    display: flex; align-items: center; gap: 0.6rem;
+  }
+  .section-tag::before { content:''; width:24px; height:1px; background: var(--teal-mid); }
+  h2 {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: clamp(2rem, 4vw, 3rem); font-weight: 300; line-height: 1.2;
+    color: var(--text-dark); margin-bottom: 1.2rem;
+  }
+  h2 em { font-style: normal; color: var(--teal-deep); }
+  .section-sub { font-size: 1rem; color: var(--text-mid); line-height: 1.7; max-width: 520px; font-weight: 300; }
+
+  /* HOW IT WORKS */
+  .how {
+    background: var(--teal-mist);
+    display: grid; grid-template-columns: 1fr 1fr; gap: 5rem; align-items: center;
+  }
+  .steps { display: flex; flex-direction: column; gap: 0; margin-top: 3rem; }
+  .step {
+    display: flex; gap: 1.5rem; align-items: flex-start;
+    padding: 1.5rem 0; position: relative;
+    border-left: 2px solid var(--teal-pale);
+    padding-left: 2rem;
+    transition: border-color 0.3s;
+  }
+  .step:hover { border-left-color: var(--teal-mid); }
+  .step-num {
+    position: absolute; left: -14px; top: 1.5rem;
+    width: 26px; height: 26px; border-radius: 50%;
+    background: var(--teal-pale); color: var(--teal-deep);
+    font-size: 0.75rem; font-weight: 600;
+    display: flex; align-items: center; justify-content: center;
+    transition: background 0.3s;
+  }
+  .step:hover .step-num { background: var(--teal-mid); color: white; }
+  .step-content h3 { font-size: 1rem; font-weight: 500; color: var(--text-dark); margin-bottom: 0.3rem; }
+  .step-content p { font-size: 0.88rem; color: var(--text-mid); line-height: 1.6; font-weight: 300; }
+
+  .arch-visual {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;
+  }
+  .arch-card {
+    background: white; border-radius: 18px; padding: 1.5rem;
+    border: 1px solid rgba(109,191,184,0.2);
+    transition: transform 0.3s, box-shadow 0.3s;
+    position: relative; overflow: hidden;
+  }
+  .arch-card::before {
+    content: ''; position: absolute; inset: 0;
+    background: linear-gradient(135deg, var(--teal-wash), transparent);
+    opacity: 0; transition: opacity 0.3s;
+  }
+  .arch-card:hover { transform: translateY(-4px); box-shadow: 0 16px 40px rgba(42,122,114,0.12); }
+  .arch-card:hover::before { opacity: 1; }
+  .arch-icon { font-size: 1.8rem; margin-bottom: 0.8rem; }
+  .arch-card h4 { font-size: 0.9rem; font-weight: 500; color: var(--text-dark); margin-bottom: 0.3rem; }
+  .arch-card p { font-size: 0.78rem; color: var(--text-mid); line-height: 1.5; font-weight: 300; }
+  .arch-card.full { grid-column: 1/-1; background: linear-gradient(135deg, var(--teal-deep), var(--teal-mid)); color: white; }
+  .arch-card.full h4 { color: white; }
+  .arch-card.full p { color: rgba(255,255,255,0.8); }
+
+  /* FEATURES */
+  .features-grid {
+    display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.5rem;
+    margin-top: 3.5rem;
+  }
+  .feat-card {
+    background: white; border: 1px solid rgba(109,191,184,0.2);
+    border-radius: 20px; padding: 2rem;
+    transition: all 0.3s; position: relative; overflow: hidden;
+  }
+  .feat-card::after {
+    content: ''; position: absolute; bottom: 0; left: 0;
+    height: 3px; width: 0; background: linear-gradient(90deg, var(--teal-deep), var(--teal-light));
+    transition: width 0.4s;
+  }
+  .feat-card:hover { box-shadow: 0 20px 48px rgba(42,122,114,0.1); transform: translateY(-4px); }
+  .feat-card:hover::after { width: 100%; }
+  .feat-icon {
+    width: 48px; height: 48px; border-radius: 14px;
+    background: var(--teal-wash); display: flex; align-items: center; justify-content: center;
+    font-size: 1.4rem; margin-bottom: 1.2rem;
+  }
+  .feat-card h3 { font-size: 1rem; font-weight: 500; color: var(--text-dark); margin-bottom: 0.5rem; }
+  .feat-card p { font-size: 0.85rem; color: var(--text-mid); line-height: 1.65; font-weight: 300; }
+
+  /* AI SECTION */
+  .ai-section {
+    background: var(--text-dark);
+    display: grid; grid-template-columns: 1fr 1fr; gap: 5rem; align-items: center;
+  }
+  .ai-section .section-tag { color: var(--teal-light); }
+  .ai-section .section-tag::before { background: var(--teal-light); }
+  .ai-section h2 { color: white; }
+  .ai-section h2 em { color: var(--teal-light); }
+  .ai-section .section-sub { color: rgba(255,255,255,0.6); }
+
+  .model-cards { display: flex; flex-direction: column; gap: 1rem; }
+  .model-card {
+    background: rgba(255,255,255,0.06); border: 1px solid rgba(109,191,184,0.2);
+    border-radius: 16px; padding: 1.3rem 1.5rem;
+    display: flex; align-items: center; gap: 1.2rem;
+    transition: background 0.3s, transform 0.3s;
+  }
+  .model-card:hover { background: rgba(109,191,184,0.1); transform: translateX(6px); }
+  .model-badge {
+    background: linear-gradient(135deg, var(--teal-deep), var(--teal-mid));
+    color: white; padding: 0.3rem 0.8rem; border-radius: 8px;
+    font-size: 0.75rem; font-weight: 600; letter-spacing: 0.05em; white-space: nowrap;
+  }
+  .model-info h4 { font-size: 0.9rem; font-weight: 500; color: white; margin-bottom: 0.2rem; }
+  .model-info p { font-size: 0.78rem; color: rgba(255,255,255,0.5); line-height: 1.5; font-weight: 300; }
+  .model-perf {
+    margin-left: auto; text-align: right;
+    font-size: 0.72rem; color: var(--teal-light); font-weight: 500; white-space: nowrap;
+  }
+
+  .ai-list { margin-top: 2rem; display: flex; flex-direction: column; gap: 0.8rem; }
+  .ai-list-item {
+    display: flex; align-items: flex-start; gap: 0.8rem;
+    font-size: 0.88rem; color: rgba(255,255,255,0.7); line-height: 1.5; font-weight: 300;
+  }
+  .ai-list-item::before {
+    content: ''; width: 6px; height: 6px; border-radius: 50%;
+    background: var(--teal-light); flex-shrink: 0; margin-top: 6px;
+  }
+
+  /* USERS */
+  .users-grid {
+    display: grid; grid-template-columns: repeat(3, 1fr); gap: 2rem; margin-top: 3.5rem;
+  }
+  .user-card {
+    border-radius: 24px; padding: 2.5rem 2rem; text-align: center;
+    transition: transform 0.3s;
+  }
+  .user-card:hover { transform: translateY(-6px); }
+  .user-card.patient { background: var(--teal-wash); border: 2px solid var(--teal-pale); }
+  .user-card.doctor { background: var(--teal-deep); color: white; }
+  .user-card.guardian { background: var(--teal-mist); border: 2px solid rgba(109,191,184,0.3); }
+  .user-avatar { font-size: 2.8rem; margin-bottom: 1rem; }
+  .user-card h3 { font-family: 'Cormorant Garamond', serif; font-size: 1.5rem; font-weight: 400; margin-bottom: 0.8rem; }
+  .user-card.doctor h3, .user-card.doctor .user-features li { color: white; }
+  .user-card.patient h3 { color: var(--teal-deep); }
+  .user-card.guardian h3 { color: var(--text-dark); }
+  .user-features { list-style: none; display: flex; flex-direction: column; gap: 0.5rem; }
+  .user-features li {
+    font-size: 0.82rem; color: var(--text-mid); font-weight: 300; line-height: 1.5;
+    padding: 0.4rem 0.8rem; border-radius: 8px; background: rgba(255,255,255,0.5);
+  }
+  .user-card.doctor .user-features li { background: rgba(255,255,255,0.15); color: rgba(255,255,255,0.9); }
+  .user-card.guardian .user-features li { background: rgba(255,255,255,0.7); }
+
+  /* SAFETY */
+  .safety {
+    background: var(--teal-mist);
+    display: grid; grid-template-columns: 1fr 1fr; gap: 5rem; align-items: center;
+  }
+  .safety-items { display: flex; flex-direction: column; gap: 1.2rem; margin-top: 2rem; }
+  .safety-item {
+    display: flex; gap: 1.2rem; align-items: flex-start;
+    padding: 1.3rem; background: white; border-radius: 16px;
+    border: 1px solid rgba(109,191,184,0.15);
+    transition: box-shadow 0.3s;
+  }
+  .safety-item:hover { box-shadow: 0 8px 24px rgba(42,122,114,0.1); }
+  .safety-icon { font-size: 1.5rem; flex-shrink: 0; }
+  .safety-item h4 { font-size: 0.9rem; font-weight: 500; color: var(--text-dark); margin-bottom: 0.2rem; }
+  .safety-item p { font-size: 0.8rem; color: var(--text-mid); line-height: 1.5; font-weight: 300; }
+
+  .safety-visual {
+    background: white; border-radius: 24px; padding: 2rem;
+    box-shadow: 0 20px 60px rgba(42,122,114,0.1);
+  }
+  .sv-title { font-size: 0.75rem; font-weight: 500; color: var(--text-soft); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 1.5rem; }
+  .sv-pipeline { display: flex; flex-direction: column; gap: 0.6rem; }
+  .sv-step {
+    display: flex; align-items: center; gap: 1rem;
+    padding: 0.9rem 1.2rem; border-radius: 12px;
+    background: var(--teal-mist); border: 1px solid var(--teal-wash);
+    font-size: 0.82rem; color: var(--text-dark); font-weight: 400;
+  }
+  .sv-step-icon { width: 28px; height: 28px; border-radius: 8px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; font-size: 0.9rem; }
+  .sv-step.pass { background: #f0faf8; border-color: var(--teal-pale); }
+  .sv-step.pass .sv-step-icon { background: var(--teal-pale); }
+  .sv-step.active { background: var(--teal-wash); border-color: var(--teal-mid); }
+  .sv-step.active .sv-step-icon { background: var(--teal-mid); color: white; }
+  .sv-step-status { margin-left: auto; font-size: 0.72rem; font-weight: 500; }
+  .sv-step.pass .sv-step-status { color: var(--teal-deep); }
+  .sv-step.active .sv-step-status { color: var(--teal-mid); }
+  .sv-arrow { text-align: center; color: var(--teal-pale); font-size: 1rem; }
+
+  /* DATASETS */
+  .datasets-grid {
+    display: grid; grid-template-columns: repeat(2, 1fr); gap: 1.5rem; margin-top: 3rem;
+  }
+  .dataset-card {
+    background: white; border: 1px solid rgba(109,191,184,0.2);
+    border-radius: 18px; padding: 1.8rem;
+    transition: all 0.3s;
+  }
+  .dataset-card:hover { box-shadow: 0 12px 32px rgba(42,122,114,0.1); transform: translateY(-3px); }
+  .dataset-flag { font-size: 1.5rem; margin-bottom: 0.8rem; }
+  .dataset-card h4 { font-size: 0.95rem; font-weight: 500; color: var(--text-dark); margin-bottom: 0.5rem; }
+  .dataset-meta { display: flex; gap: 0.8rem; flex-wrap: wrap; margin-top: 0.8rem; }
+  .meta-tag {
+    background: var(--teal-wash); color: var(--teal-deep);
+    padding: 0.3rem 0.7rem; border-radius: 6px; font-size: 0.7rem; font-weight: 500;
+  }
+
+  /* FOOTER / CTA */
+  .cta-section {
+    background: linear-gradient(135deg, var(--teal-deep) 0%, #1a5c56 100%);
+    padding: 6rem 5vw; text-align: center; position: relative; overflow: hidden;
+  }
+  .cta-section::before {
+    content: 'Glucora';
+    position: absolute; font-family: 'Cormorant Garamond', serif;
+    font-size: 18vw; font-weight: 300; color: rgba(255,255,255,0.04);
+    top: 50%; left: 50%; transform: translate(-50%, -50%);
+    white-space: nowrap; pointer-events: none;
+  }
+  .cta-section h2 { color: white; font-size: clamp(2rem, 4vw, 3.2rem); margin-bottom: 1rem; }
+  .cta-section p { color: rgba(255,255,255,0.7); font-size: 1.05rem; font-weight: 300; max-width: 500px; margin: 0 auto 2.5rem; line-height: 1.7; }
+  .cta-btns { display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap; }
+  .btn-white {
+    background: white; color: var(--teal-deep);
+    padding: 0.9rem 2.4rem; border-radius: 50px;
+    font-size: 0.9rem; font-weight: 500; text-decoration: none;
+    transition: all 0.25s; box-shadow: 0 8px 24px rgba(0,0,0,0.2);
+  }
+  .btn-white:hover { transform: translateY(-2px); box-shadow: 0 14px 36px rgba(0,0,0,0.25); }
+  .btn-outline {
+    background: transparent; color: white; border: 1.5px solid rgba(255,255,255,0.4);
+    padding: 0.9rem 2.4rem; border-radius: 50px;
+    font-size: 0.9rem; font-weight: 400; text-decoration: none;
+    transition: all 0.25s;
+  }
+  .btn-outline:hover { border-color: white; background: rgba(255,255,255,0.08); }
+
+  footer {
+    background: var(--text-dark); padding: 2.5rem 5vw;
+    display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;
+  }
+  .footer-logo { display: flex; align-items: center; gap: 0.7rem; }
+  .footer-logo img { height: 28px; filter: brightness(0) invert(1) opacity(0.6); }
+  .footer-logo span { font-family: 'Cormorant Garamond', serif; font-size: 1.2rem; color: rgba(255,255,255,0.6); }
+  footer p { font-size: 0.78rem; color: rgba(255,255,255,0.35); }
+  .footer-tags { display: flex; gap: 0.8rem; flex-wrap: wrap; }
+  .footer-tag { font-size: 0.72rem; color: rgba(255,255,255,0.3); background: rgba(255,255,255,0.05); padding: 0.3rem 0.7rem; border-radius: 6px; }
+
+  /* ANIMATIONS */
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(24px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .reveal {
+    opacity: 0; transform: translateY(30px);
+    transition: opacity 0.7s ease, transform 0.7s ease;
+  }
+  .reveal.visible { opacity: 1; transform: none; }
+
+  /* RESPONSIVE */
+  @media (max-width: 900px) {
+    .hero, .how, .ai-section, .safety { grid-template-columns: 1fr; }
+    .hero-visual { display: none; }
+    .features-grid, .users-grid { grid-template-columns: 1fr; }
+    .datasets-grid { grid-template-columns: 1fr; }
+    .nav-links { display: none; }
+    .stat-divider { display: none; }
+  }
+</style>
 </head>
 <body>
-    <h1>Glucora Landing Page</h1>
+
+<!-- NAV -->
+<nav>
+  <div class="nav-logo">
+    <img src="D:\Graduation Project\Glucora-Landing\Glucora_logo.png" alt="Glucora" style="height:32px;filter:hue-rotate(140deg) saturate(0.7);">
+    <span>Glucora</span>
+  </div>
+  <ul class="nav-links">
+    <li><a href="#how">How It Works</a></li>
+    <li><a href="#features">Features</a></li>
+    <li><a href="#ai">AI Engine</a></li>
+    <li><a href="#users">Who It's For</a></li>
+    <li><a href="#safety">Safety</a></li>
+  </ul>
+  <a href="#cta" class="nav-cta">Learn More</a>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-text">
+    <div class="hero-badge">AI-Powered Medical Device</div>
+    <h1>Intelligent Glucose<br>Control, <em>Reimagined</em></h1>
+    <p class="hero-sub">Glucora combines continuous glucose monitoring, deep learning prediction, and automated insulin delivery into a single seamless ecosystem — keeping you safe, 24/7.</p>
+    <div class="hero-actions">
+      <a href="#how" class="btn-primary">See How It Works</a>
+      <a href="#features" class="btn-ghost">Explore Features</a>
+    </div>
+  </div>
+  <div class="hero-visual">
+    <div class="device-mockup">
+      <div class="float-badge left">
+        <span class="fb-val">98.2%</span>
+        Time in Range
+      </div>
+      <div class="phone-frame">
+        <div class="phone-screen">
+          <div class="phone-notch"></div>
+          <div class="glucose-card">
+            <div class="glucose-label">Current Glucose</div>
+            <div class="glucose-value">142 <span>mg/dL</span></div>
+            <div class="glucose-trend">Slowly Rising · In Range</div>
+            <div class="mini-chart">
+              <div class="bar"></div><div class="bar"></div><div class="bar"></div>
+              <div class="bar"></div><div class="bar"></div><div class="bar"></div>
+              <div class="bar"></div><div class="bar"></div>
+            </div>
+          </div>
+          <div class="ai-card">
+            <div class="ai-card-title">AI Prediction · 30 min</div>
+            <div class="ai-card-text">Forecast: <strong>158 mg/dL</strong> — Consider a small correction. Confidence: 91%</div>
+          </div>
+          <div class="alert-chip">Prediction updated 2 min ago</div>
+        </div>
+      </div>
+      <div class="float-badge right">
+        <span class="fb-val">2.1u</span>
+        IOB Active
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- STATS -->
+<div class="stats-bar">
+  <div class="stat-item">
+    <span class="stat-number">30–60</span>
+    <div class="stat-label">Minute Prediction Horizon</div>
+  </div>
+  <div class="stat-divider"></div>
+  <div class="stat-item">
+    <span class="stat-number">5 min</span>
+    <div class="stat-label">CGM Reading Interval</div>
+  </div>
+  <div class="stat-divider"></div>
+  <div class="stat-item">
+    <span class="stat-number">22.6M</span>
+    <div class="stat-label">Training Glucose Readings</div>
+  </div>
+  <div class="stat-divider"></div>
+  <div class="stat-item">
+    <span class="stat-number">&lt;500ms</span>
+    <div class="stat-label">Edge Inference Latency</div>
+  </div>
+  <div class="stat-divider"></div>
+  <div class="stat-item">
+    <span class="stat-number">4</span>
+    <div class="stat-label">User Roles Supported</div>
+  </div>
+</div>
+
+<!-- HOW IT WORKS -->
+<section class="how" id="how">
+  <div class="reveal">
+    <div class="section-tag">Process</div>
+    <h2>How <em>Glucora</em><br>Works</h2>
+    <p class="section-sub">A closed-loop system that senses, predicts, validates, and acts — automatically, safely, and transparently.</p>
+    <div class="steps">
+      <div class="step">
+        <div class="step-num">1</div>
+        <div class="step-content">
+          <h3>Continuous Sensing</h3>
+          <p>A CGM sensor measures interstitial glucose every 5 minutes and transmits readings via Bluetooth Low Energy to the ESP32 AI controller.</p>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">2</div>
+        <div class="step-content">
+          <h3>AI Prediction</h3>
+          <p>A TinyML GRU model runs on-device to forecast glucose levels 30–60 minutes ahead, with confidence scores and risk classification.</p>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">3</div>
+        <div class="step-content">
+          <h3>Safety Validation</h3>
+          <p>Multi-stage safety checks verify every dose recommendation against IOB tracking, patient care plan limits, and hypoglycemia prevention rules.</p>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">4</div>
+        <div class="step-content">
+          <h3>Insulin Delivery</h3>
+          <p>Validated doses are delivered by a precision micro-pump with real-time occlusion monitoring and immediate failure detection.</p>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">5</div>
+        <div class="step-content">
+          <h3>Alerts & Reports</h3>
+          <p>The mobile app surfaces real-time alerts, AI explainability, trend charts, and weekly health reports to patients, doctors, and guardians.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="arch-visual reveal">
+    <div class="arch-card">
+      <div class="arch-icon">📡</div>
+      <h4>CGM Sensor</h4>
+      <p>FreeStyle Libre-compatible, BLE transmission, 5-min intervals</p>
+    </div>
+    <div class="arch-card">
+      <div class="arch-icon">⚡</div>
+      <h4>ESP32 Controller</h4>
+      <p>Edge AI inference, safety logic, pump control</p>
+    </div>
+    <div class="arch-card">
+      <div class="arch-icon">📱</div>
+      <h4>Mobile App</h4>
+      <p>Flutter, real-time dashboard, AI explainability</p>
+    </div>
+    <div class="arch-card">
+      <div class="arch-icon">☁️</div>
+      <h4>Cloud Backend</h4>
+      <p>Supabase, secure storage, remote clinician access</p>
+    </div>
+    <div class="arch-card full">
+      <div class="arch-icon">🧠</div>
+      <h4>AI Prediction Engine</h4>
+      <p>GRU/LSTM/HMM models trained on 22.6M readings across 4 international datasets — optimized with TensorFlow Lite for sub-500ms on-device inference</p>
+    </div>
+  </div>
+</section>
+
+<!-- FEATURES -->
+<section id="features">
+  <div class="reveal" style="text-align:center; max-width:640px; margin:0 auto;">
+    <div class="section-tag" style="justify-content:center;">Features</div>
+    <h2>Everything You Need<br>for <em>Safer</em> Diabetes Care</h2>
+    <p class="section-sub" style="margin:0 auto;">Glucora brings together cutting-edge AI with practical medical tools across every layer of diabetes management.</p>
+  </div>
+  <div class="features-grid reveal">
+    <div class="feat-card">
+      <div class="feat-icon">🔮</div>
+      <h3>Predictive Glucose Forecasting</h3>
+      <p>GRU neural network predicts glucose levels 30–60 minutes ahead, giving you time to act before a hypo or hyperglycemic event occurs.</p>
+    </div>
+    <div class="feat-card">
+      <div class="feat-icon">🛡️</div>
+      <h3>Multi-Layer Safety Validation</h3>
+      <p>Every insulin dose is checked against IOB levels, patient care plan limits, and clinical safety thresholds before delivery is authorized.</p>
+    </div>
+    <div class="feat-card">
+      <div class="feat-icon">💡</div>
+      <h3>AI Explainability</h3>
+      <p>Understand why every dosing decision was made. Transparent reasoning helps patients and clinicians build trust in AI recommendations.</p>
+    </div>
+    <div class="feat-card">
+      <div class="feat-icon">🔔</div>
+      <h3>Smart Alert System</h3>
+      <p>Context-aware alerts for hypoglycemia, hyperglycemia, rapid changes, sensor failures, and pump issues — delivered instantly to all stakeholders.</p>
+    </div>
+    <div class="feat-card">
+      <div class="feat-icon">🦠</div>
+      <h3>Anomaly & Cyber Detection</h3>
+      <p>Real-time analysis of delivery command patterns to identify cyber-attacks or system anomalies, with automatic suspension if threats are detected.</p>
+    </div>
+    <div class="feat-card">
+      <div class="feat-icon">📊</div>
+      <h3>Health Reports & Trends</h3>
+      <p>Weekly and monthly reports with Time-in-Range, average glucose, estimated HbA1c, and dose history — exportable for clinical review.</p>
+    </div>
+    <div class="feat-card">
+      <div class="feat-icon">🍎</div>
+      <h3>Food & Medication Logging</h3>
+      <p>Track meals with macro breakdown, set medication reminders, and give the AI context to improve prediction accuracy for your lifestyle.</p>
+    </div>
+    <div class="feat-card">
+      <div class="feat-icon">📍</div>
+      <h3>Guardian Location Sharing</h3>
+      <p>Guardians and caretakers can monitor patient glucose levels in real time, and optionally access GPS location during emergencies.</p>
+    </div>
+    <div class="feat-card">
+      <div class="feat-icon">🔒</div>
+      <h3>Secure Cloud Sync</h3>
+      <p>All data is encrypted end-to-end using HTTPS/TLS and stored in a HIPAA-aligned Supabase backend with row-level security per user role.</p>
+    </div>
+  </div>
+</section>
+
+<!-- AI ENGINE -->
+<section class="ai-section" id="ai">
+  <div class="reveal">
+    <div class="section-tag">Intelligence</div>
+    <h2>The <em>AI Engine</em><br>Behind Glucora</h2>
+    <p class="section-sub">Three time-series forecasting architectures were evaluated and compared. GRU emerged as the optimal choice for real-time embedded deployment.</p>
+    <div class="ai-list">
+      <div class="ai-list-item">Trained on 22.6 million readings across 4 datasets from China, Spain, USA, and Egypt</div>
+      <div class="ai-list-item">8-bit integer quantization for ESP32 deployment with &lt;500ms inference</div>
+      <div class="ai-list-item">Outputs predicted value, confidence score, and risk level (Low / Medium / High)</div>
+      <div class="ai-list-item">Anomaly detection monitors delivery command patterns for security threats</div>
+      <div class="ai-list-item">Adaptive pressure-based fault detection for real-time pump occlusion monitoring</div>
+    </div>
+  </div>
+  <div class="model-cards reveal">
+    <div class="model-card">
+      <div class="model-badge">GRU</div>
+      <div class="model-info">
+        <h4>Gated Recurrent Unit — Primary Model</h4>
+        <p>Best-performing model. Efficient sequential learning with gating mechanism. Deployed on ESP32 via TensorFlow Lite.</p>
+      </div>
+      <div class="model-perf">⭐ Primary</div>
+    </div>
+    <div class="model-card">
+      <div class="model-badge">LSTM</div>
+      <div class="model-info">
+        <h4>Long Short-Term Memory</h4>
+        <p>Captures long-range temporal dependencies in glucose time series. Evaluated for 30–60 min forecasting accuracy.</p>
+      </div>
+      <div class="model-perf">Evaluated</div>
+    </div>
+    <div class="model-card">
+      <div class="model-badge">HMM</div>
+      <div class="model-info">
+        <h4>Hidden Markov Model</h4>
+        <p>Probabilistic model for glucose state transitions. Provides interpretable state-based predictions for clinical transparency.</p>
+      </div>
+      <div class="model-perf">Evaluated</div>
+    </div>
+    <div class="model-card" style="border-color:rgba(109,191,184,0.3); background:rgba(109,191,184,0.08);">
+      <div class="model-badge" style="background:rgba(109,191,184,0.2); color: var(--teal-light);">RMSE</div>
+      <div class="model-info">
+        <h4>Evaluation Metric</h4>
+        <p>Root Mean Square Error used to compare prediction accuracy across all three model architectures on test datasets.</p>
+      </div>
+      <div class="model-perf" style="color:var(--teal-pale);">Metric</div>
+    </div>
+  </div>
+</section>
+
+<!-- USERS -->
+<section id="users">
+  <div class="reveal" style="text-align:center; max-width:640px; margin:0 auto;">
+    <div class="section-tag" style="justify-content:center;">Who It's For</div>
+    <h2>Designed for <em>Everyone</em><br>in the Care Circle</h2>
+    <p class="section-sub" style="margin:0 auto;">Glucora serves patients, clinicians, and guardians with role-specific views and permissions tailored to their needs.</p>
+  </div>
+  <div class="users-grid reveal">
+    <div class="user-card patient">
+      <div class="user-avatar">🧑‍⚕️</div>
+      <h3>Patient</h3>
+      <ul class="user-features">
+        <li>Real-time glucose dashboard</li>
+        <li>AI predictions & recommendations</li>
+        <li>Food & medication logging</li>
+        <li>Alerts & weekly health reports</li>
+        <li>Manual glucose entry & calibration</li>
+      </ul>
+    </div>
+    <div class="user-card doctor">
+      <div class="user-avatar">👨‍⚕️</div>
+      <h3>Clinician</h3>
+      <ul class="user-features">
+        <li>Remote patient monitoring</li>
+        <li>Create & update care plans</li>
+        <li>Set basal insulin schedules</li>
+        <li>Generate health reports</li>
+        <li>Review alerts & event history</li>
+      </ul>
+    </div>
+    <div class="user-card guardian">
+      <div class="user-avatar">👪</div>
+      <h3>Guardian</h3>
+      <ul class="user-features">
+        <li>Monitor glucose & IOB levels</li>
+        <li>Receive urgent alerts</li>
+        <li>Emergency GPS location access</li>
+        <li>Request/accept connections</li>
+        <li>View patient event history</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- SAFETY -->
+<section class="safety" id="safety">
+  <div class="reveal">
+    <div class="section-tag">Safety First</div>
+    <h2>Built for<br><em>Medical-Grade</em> Reliability</h2>
+    <p class="section-sub">Every layer of Glucora is engineered with patient safety as the non-negotiable foundation. No dose is ever delivered without passing all checks.</p>
+    <div class="safety-items">
+      <div class="safety-item">
+        <div class="safety-icon">⚖️</div>
+        <div>
+          <h4>IOB Stacking Prevention</h4>
+          <p>Real-time insulin-on-board tracking using exponential decay models prevents dangerous insulin accumulation.</p>
+        </div>
+      </div>
+      <div class="safety-item">
+        <div class="safety-icon">🚫</div>
+        <div>
+          <h4>Dose Cap Enforcement</h4>
+          <p>Individualized maximum bolus limits from the patient's care plan are enforced regardless of the AI's recommendation.</p>
+        </div>
+      </div>
+      <div class="safety-item">
+        <div class="safety-icon">🔍</div>
+        <div>
+          <h4>Mechanical Fault Detection</h4>
+          <p>Pressure profile analysis detects pump occlusions and tube disconnections in real time, halting delivery immediately.</p>
+        </div>
+      </div>
+      <div class="safety-item">
+        <div class="safety-icon">🔐</div>
+        <div>
+          <h4>Cyber Threat Detection</h4>
+          <p>Behavioral anomaly scoring (0–1) flags suspicious delivery command patterns and can auto-suspend insulin delivery.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="safety-visual reveal">
+    <div class="sv-title">Safety Validation Pipeline</div>
+    <div class="sv-pipeline">
+      <div class="sv-step pass">
+        <div class="sv-step-icon">📡</div>
+        CGM Data Validated &amp; Preprocessed
+        <div class="sv-step-status">✓ Pass</div>
+      </div>
+      <div class="sv-arrow">↓</div>
+      <div class="sv-step pass">
+        <div class="sv-step-icon">🧠</div>
+        GRU Model Inference (30–60 min)
+        <div class="sv-step-status">✓ Pass</div>
+      </div>
+      <div class="sv-arrow">↓</div>
+      <div class="sv-step pass">
+        <div class="sv-step-icon">🔢</div>
+        Dose Calculation with IOB Offset
+        <div class="sv-step-status">✓ Pass</div>
+      </div>
+      <div class="sv-arrow">↓</div>
+      <div class="sv-step active">
+        <div class="sv-step-icon">🛡️</div>
+        Multi-Stage Safety Validation
+        <div class="sv-step-status">⟳ Active</div>
+      </div>
+      <div class="sv-arrow">↓</div>
+      <div class="sv-step">
+        <div class="sv-step-icon">💉</div>
+        Insulin Delivery Authorized
+        <div class="sv-step-status" style="color:var(--text-soft)">Pending</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- DATASETS -->
+<section>
+  <div class="reveal" style="text-align:center; max-width:640px; margin:0 auto;">
+    <div class="section-tag" style="justify-content:center;">Training Data</div>
+    <h2>Trained on <em>Global</em><br>Patient Populations</h2>
+    <p class="section-sub" style="margin:0 auto;">Glucora's AI models were trained and validated on four international Type 1 Diabetes datasets, ensuring robust generalization across diverse populations.</p>
+  </div>
+  <div class="datasets-grid reveal">
+    <div class="dataset-card">
+      <div class="dataset-flag">🇨🇳</div>
+      <h4>Shanghai T1DM</h4>
+      <p style="font-size:0.82rem; color:var(--text-mid); font-weight:300; line-height:1.5;">12 patients, 4–14 days. CGM + bolus + dietary data from Freestyle Libre devices in Shanghai, China.</p>
+      <div class="dataset-meta">
+        <span class="meta-tag">12 Patients</span>
+        <span class="meta-tag">Freestyle Libre</span>
+        <span class="meta-tag">CGM + Insulin</span>
+      </div>
+    </div>
+    <div class="dataset-card">
+      <div class="dataset-flag">🇪🇸</div>
+      <h4>T1DiabetesGranada</h4>
+      <p style="font-size:0.82rem; color:var(--text-mid); font-weight:300; line-height:1.5;">736 patients over 4 years. 22.6 million timestamped glucose readings from Granada, Spain.</p>
+      <div class="dataset-meta">
+        <span class="meta-tag">736 Patients</span>
+        <span class="meta-tag">22.6M Readings</span>
+        <span class="meta-tag">4 Years</span>
+      </div>
+    </div>
+    <div class="dataset-card">
+      <div class="dataset-flag">🇺🇸</div>
+      <h4>Kaggle T1D Blood Glucose</h4>
+      <p style="font-size:0.82rem; color:var(--text-mid); font-weight:300; line-height:1.5;">5 months of CGM, insulin, carbs, and physical activity data including heart rate from Ohio, USA.</p>
+      <div class="dataset-meta">
+        <span class="meta-tag">1 Patient</span>
+        <span class="meta-tag">194.5 MB</span>
+        <span class="meta-tag">+ Activity Data</span>
+      </div>
+    </div>
+    <div class="dataset-card">
+      <div class="dataset-flag">🇪🇬</div>
+      <h4>Real T1D Patient — Egypt</h4>
+      <p style="font-size:0.82rem; color:var(--text-mid); font-weight:300; line-height:1.5;">44,330 glucose readings over 4 months from a real Egyptian patient. Local population context for the team's home region.</p>
+      <div class="dataset-meta">
+        <span class="meta-tag">44,330 Readings</span>
+        <span class="meta-tag">4 Months</span>
+        <span class="meta-tag">Egypt</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CTA -->
+<section class="cta-section" id="cta">
+  <h2>The Future of <em>Autonomous</em><br>Diabetes Management</h2>
+  <p>Glucora brings together AI prediction, real-time safety validation, and seamless user experience to deliver an open, explainable, and safe Artificial Pancreas system.</p>
+  <div class="cta-btns">
+    <a href="#how" class="btn-white">Explore the System</a>
+    <a href="#ai" class="btn-outline">View AI Engine</a>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-logo">
+    <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/1/1b/Circle-icons-medical.svg/240px-Circle-icons-medical.svg.png" alt="Glucora">
+    <span>Glucora</span>
+  </div>
+  <p>AI-Powered Glucose Monitoring & Automated Insulin Delivery System</p>
+  <div class="footer-tags">
+    <span class="footer-tag">Flutter</span>
+    <span class="footer-tag">ESP32</span>
+    <span class="footer-tag">TensorFlow Lite</span>
+    <span class="footer-tag">Supabase</span>
+    <span class="footer-tag">GRU / LSTM / HMM</span>
+  </div>
+</footer>
+
+<script>
+  // Intersection Observer for reveal animations
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach((entry, i) => {
+      if (entry.isIntersecting) {
+        setTimeout(() => entry.target.classList.add('visible'), i * 80);
+      }
+    });
+  }, { threshold: 0.1 });
+  document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+</script>
 </body>
 </html>
